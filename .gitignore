@@ -1,0 +1,10 @@
+# python
+__pycache__/
+*.py[co]
+myvenv
+
+# vs code
+.vscode
+
+# file of download
+download
