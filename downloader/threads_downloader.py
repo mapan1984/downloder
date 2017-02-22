@@ -4,6 +4,7 @@ from urllib.request import Request
 
 from downloader.tool import open_url
 from downloader.range_downloader import RangeDownloader
+from downloader.simple_downloader import download
 
 class ThreadDownloader():
 
@@ -19,9 +20,12 @@ class ThreadDownloader():
         request = Request(self.url, method='HEAD')
         response = open_url(request)
         info = response.info()
+        response.close()
         # support 'Range' request headers
         if info.get('Accept-Ranges') == 'bytes':
             self.content_length = int(info.get('Content-Length'))
+        else:
+            self.content_length = None
 
     def _get_ranges(self):
         ranges = []
@@ -34,14 +38,15 @@ class ThreadDownloader():
         return ranges
 
     def run(self):
-        all_threads = []
-        for num, ran in enumerate(self._get_ranges(), start=1):
-            start, end = ran
-            # print('thread %d start:%s,end:%s' % (num, start, end))
-            # 开线程
-            downloader = RangeDownloader(self.url, self.filename, start, end)
-            downloader.start()
-            all_threads.append(downloader)
-        for thread in all_threads:
-            thread.join()
+        if self.content_length:
+            all_threads = []
+            for ran in self._get_ranges():
+                start, end = ran
+                downloader = RangeDownloader(self.url, self.filename, start, end)
+                downloader.start()
+                all_threads.append(downloader)
+            for thread in all_threads:
+                thread.join()
+        else:
+            download(self.url, self.filename)
         print('download %s load success' % self.filename)
