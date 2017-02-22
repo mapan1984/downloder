@@ -1,6 +1,6 @@
 from urllib.request import Request
 
-from downloader.tool import make_show_box, open_url
+from downloader.tool import make_process_bar, open_url
 
 def download(url, filename, headers={}):
     """ download filename from url
@@ -13,7 +13,7 @@ def download(url, filename, headers={}):
     file_length = response.info().get('Content-Length')
     if file_length:
         file_length = int(file_length)
-        show_process_bar = make_show_box(file_length)
+        process_bar = make_process_bar(file_length)
         file = open(filename, "wb")
         has_load = 0
         while True:
@@ -22,7 +22,7 @@ def download(url, filename, headers={}):
                 break
             once_write = file.write(content)
             has_load = has_load + once_write
-            show_process_bar(has_load)
+            process_bar(has_load)
         response.close()
         file.close()
     else:
