@@ -15,17 +15,19 @@ def mkdir(path):
         print("creat %s success." % path)
 
 
-def open_url(request):
+def open_url(request, timeout=60):
     try:
-        response = urlopen(request)
+        response = urlopen(request, timeout=timeout)
     except HTTPError as error:
         print("The server couldn't fulfill the request.")
+        print("URL: {}".format(request.full_url))
         print("Error code: ", error.code)
-        return None
+        raise
     except URLError as error:
         print("We failed to reach a server.")
+        print("URLError: {}".format(request.full_url))
         print("Reason: ", error.reason)
-        return None
+        raise
     else:
         return response
 
